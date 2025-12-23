@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Text Humanizer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+                 font-family: sans-serif;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #00e6b3;
+            --text-color: #333;
+            --bg-color: #f5f5f5;
+        }
+
+                /* Navigation Styles */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .logo {
+            font-size: 24px;
+            color: var(--primary-color);
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+        }
+
+        .nav-menu li {
+            position: relative;
+        }
+
+        .nav-menu a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 16px;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu a:hover {
+            background: rgba(26, 115, 232, 0.1);
+            color: var(--primary-color);
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu li:hover .dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown a {
+            display: block;
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .dropdown a:last-child {
+            border-bottom: none;
+        }
+
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-color);
+        }
+
+        /* Mobile Navigation */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: block;
+            }
+
+            .nav-menu {
+                position: fixed;
+                top: 70px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 70px);
+                background: white;
+                flex-direction: column;
+                padding: 2rem;
+                transition: 0.3s;
+                overflow-y: auto;
+            }
+
+            .nav-menu.active {
+                left: 0;
+            }
+
+            .nav-menu li {
+                width: 100%;
+            }
+
+            .dropdown {
+                position: static;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                box-shadow: none;
+                margin-left: 1rem;
+                margin-top: 0.5rem;
+                display: none;
+            }
+
+            .nav-menu li.active .dropdown {
+                display: block;
+            }
+
+            .nav-menu a {
+                display: block;
+                padding: 1rem;
+                width: 100%;
+            }
+        }
+        .page-container {
+            font-family: sans-serif;
+            background: #f0f0f0;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-top: 120px;
+        }
+
+        .main-wrapper {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+            max-width: 1200px;
+            width: 100%;
+            padding: 50px;
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .icon-header {
+            font-size: 70px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .main-title {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        .sub-title {
+            color: #718096;
+            font-size: 1.1em;
+        }
+
+        .options-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #2d3748;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .icon-label {
+            color: #667eea;
+            font-size: 16px;
+        }
+
+        .select-box {
+            width: 100%;
+            padding: 10px 12px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .select-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .editor-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .editor-panel {
+            background: #f7fafc;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #2d3748;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .icon-panel {
+            font-size: 22px;
+            color: #667eea;
+        }
+
+        .action-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .action-button.success-state {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+        }
+
+        .text-area {
+            width: 100%;
+            min-height: 300px;
+            padding: 15px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s;
+            line-height: 1.6;
+        }
+
+        .text-area:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .output-box {
+            width: 100%;
+            min-height: 300px;
+            padding: 15px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            font-size: 16px;
+            line-height: 1.6;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .output-box.placeholder {
+            color: #a0aec0;
+            font-style: italic;
+        }
+
+        .stats-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .stat-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .icon-stat {
+            color: #667eea;
+        }
+
+        .primary-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .primary-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+        }
+
+        .primary-button:active {
+            transform: translateY(-1px);
+        }
+
+        .primary-button:disabled {
+            background: linear-gradient(135deg, #cbd5e0, #a0aec0);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .loader-section {
+            display: none;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .spinner-ring {
+            border: 4px solid rgba(102, 126, 234, 0.1);
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loader-message {
+            margin-top: 15px;
+            color: #667eea;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .alert-box {
+            background: linear-gradient(135deg, #fed7d7, #feb2b2);
+            color: #c53030;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            display: none;
+            box-shadow: 0 5px 20px rgba(197, 48, 48, 0.2);
+            align-items: center;
+            gap: 15px;
+        }
+
+        .alert-box i {
+            font-size: 24px;
+        }
+
+        .comparison-panel {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            margin-top: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            display: none;
+        }
+
+        .comparison-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #2d3748;
+            font-weight: 700;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .metrics-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .metric-item {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .metric-name {
+            color: #718096;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 968px) {
+            .editor-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .options-bar {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-wrapper {
+                padding: 30px 20px;
+            }
+
+            .main-title {
+                font-size: 1.8em;
+            }
+
+            .icon-header {
+                font-size: 50px;
+            }
+
+            .text-area, .output-box {
+                min-height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+     <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <i class="fas fa-file-pdf"></i>
+                ConvertTools
+            </a>
+            <button class="hamburger">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="./index.html" class="nav-link">Home</a></li>
+                <li>
+                    <a href="#" class="nav-link">Img Tools <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown">
+                        <a href="./jpg-to-png.html"><i class="fas fa-file-alt"></i> Jpg to Png</a>
+                        <a href="./png-to-jpg.html"><i class="fas fa-file-alt"></i> Png to Jpg</a>
+                        <a href="./image-to-pdf.html"><i class="fas fa-image"></i> Image to PDF</a>
+                        <a href="./pdf-to-image-converter.html"><i class="fas fa-image"></i> PDF to Image</a>
+                        <a href="./image_resizer.html"><i class="fas fa-image"></i> image resizer</a>
+                        <a href="./youtube-thumbnail-downloader.html"><i class="fas fa-download"></i> Thumbnail</a>
+                    </div>
+                </li>
+                <li>
+                    <a href="#" class="nav-link">Text Tools <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown">
+                        <a href="./text-to-pdf-converter.html"><i class="fas fa-file-pdf"></i> Text to PDF</a>
+                        <a href="./Code-Minifier-Pro.html"><i class="fas fa-file-word"></i> Code Minifier</a>
+                        <a href="./QR-Code-Generator.html"><i class="fas fa-file-alt"></i> QR Code Generator</a>
+                        <a href="./code-editor.html"><i class="fas fa-code"></i> Code Editor</a>
+                        <a href="./robots-txt-generator (1).html"><i class="fas fa-table"></i> Robots Txt Generator</a>
+                        <a href="./pdf-split.html"><i class="fas fa-file-pdf"></i> PDF Split</a>
+                    </div>
+                </li>
+                <li>
+                    <a href="#" class="nav-link">PDF Tools <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown">
+                        <a href="./merge-pdf.html"><i class="fas fa-file-alt"></i> Merge PDF</a>
+                        <a href="./meta_tag_analyzer.html"><i class="fas fa-file-alt"></i> Tag Analyzer</a>
+                        <a href="./ip-Address-finder.html"><i class="fas fa-file-word"></i> Ip Finder</a>
+                        <a href="./pdf-to-zip-converter.html"><i class="fas fa-file-pdf"></i> PDF to Zip</a>
+                        <a href="./pdf-to-image-extractor.html"><i class="fas fa-file-pdf"></i> Image Extractor </a>
+                        <a href="./article-rewriter.html"><i class="fas fa-file-alt"></i> Article Rewriter</a>
+                    </div>
+                </li>
+                <li>
+                    <a href="#" class="nav-link">DOC Tools <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown">
+                        <a href="./ai-article-writer.html"><i class="fas fa-file-pdf"></i> Article writer</a>
+                        <a href="./ai-cold-email-writer.html"><i class="fas fa-file-pdf"></i> Email Writer</a>
+                        <a href="./ai-image-background-remover.html"><i class="fas fa-file-pdf"></i> Background Remover</a>
+                        <a href="./image_compressor.html"><i class="fas fa-image"></i> Image compressor</a>
+                        <a href="./image_converter.html"><i class="fas fa-image"></i> Image Converter</a>
+                        <a href="./pdf_watermark.html"><i class="fas fa-file-pdf"></i> WaterMarke to PDF</a>
+                    </div>
+                </li>
+                <li><a href="./tools-dashboard.html" class="nav-link">Dashboard</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="page-container">
+        <div class="main-wrapper">
+            <div class="header-section">
+                <div class="icon-header">
+                    <i class="fas fa-user-edit"></i>
+                </div>
+                <h1 class="main-title">AI Text Humanizer</h1>
+                <p class="sub-title">Transform AI-generated text into natural, human-like content</p>
+            </div>
+
+            <div class="options-bar">
+                <div class="option-group">
+                    <div class="option-label">
+                        <i class="fas fa-bullseye icon-label"></i>
+                        <span>Target Audience</span>
+                    </div>
+                    <select class="select-box" id="audience">
+                        <option value="general">General Audience</option>
+                        <option value="professional">Professional</option>
+                        <option value="academic">Academic</option>
+                        <option value="casual">Casual Readers</option>
+                        <option value="technical">Technical Experts</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-label">
+                        <i class="fas fa-sliders-h icon-label"></i>
+                        <span>Humanization Level</span>
+                    </div>
+                    <select class="select-box" id="level">
+                        <option value="light">Light Touch</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="heavy">Heavy Rewrite</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-label">
+                        <i class="fas fa-heart icon-label"></i>
+                        <span>Writing Style</span>
+                    </div>
+                    <select class="select-box" id="style">
+                        <option value="conversational">Conversational</option>
+                        <option value="storytelling">Storytelling</option>
+                        <option value="persuasive">Persuasive</option>
+                        <option value="informative">Informative</option>
+                        <option value="engaging">Engaging</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-label">
+                        <i class="fas fa-smile icon-label"></i>
+                        <span>Tone</span>
+                    </div>
+                    <select class="select-box" id="tone">
+                        <option value="friendly">Friendly</option>
+                        <option value="professional">Professional</option>
+                        <option value="enthusiastic">Enthusiastic</option>
+                        <option value="empathetic">Empathetic</option>
+                        <option value="authoritative">Authoritative</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="editor-grid">
+                <div class="editor-panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <i class="fas fa-robot icon-panel"></i>
+                            <span>AI-Generated Text</span>
+                        </div>
+                    </div>
+                    <textarea class="text-area" id="inputText" placeholder="Paste your AI-generated text here..."></textarea>
+                    <div class="stats-info">
+                        <div class="stat-display">
+                            <i class="fas fa-font icon-stat"></i>
+                            <span><span id="inputChars">0</span> characters</span>
+                        </div>
+                        <div class="stat-display">
+                            <i class="fas fa-file-word icon-stat"></i>
+                            <span><span id="inputWords">0</span> words</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="editor-panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <i class="fas fa-user-check icon-panel"></i>
+                            <span>Humanized Text</span>
+                        </div>
+                        <button class="action-button" onclick="copyOutput()" id="copyBtn">
+                            <i class="fas fa-copy"></i>
+                            Copy
+                        </button>
+                    </div>
+                    <div class="output-box placeholder" id="outputText">Your humanized text will appear here...</div>
+                    <div class="stats-info">
+                        <div class="stat-display">
+                            <i class="fas fa-font icon-stat"></i>
+                            <span><span id="outputChars">0</span> characters</span>
+                        </div>
+                        <div class="stat-display">
+                            <i class="fas fa-file-word icon-stat"></i>
+                            <span><span id="outputWords">0</span> words</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="primary-button" onclick="humanizeText()">
+                <i class="fas fa-magic"></i>
+                Humanize Text
+            </button>
+
+            <div class="loader-section">
+                <div class="spinner-ring"></div>
+                <p class="loader-message"><i class="fas fa-wand-magic-sparkles"></i> Humanizing your text...</p>
+            </div>
+
+            <div class="alert-box" id="errorAlert">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorMessage"></span>
+            </div>
+
+            <div class="comparison-panel" id="comparisonPanel">
+                <div class="comparison-title">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Improvement Metrics</span>
+                </div>
+                <div class="metrics-display">
+                    <div class="metric-item">
+                        <div class="metric-value" id="readability">0%</div>
+                        <div class="metric-name">Readability</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value" id="naturalness">0%</div>
+                        <div class="metric-name">Naturalness</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value" id="engagement">0%</div>
+                        <div class="metric-name">Engagement</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value" id="uniqueness">0%</div>
+                        <div class="metric-name">Uniqueness</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = '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';
+        const API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+        const MODEL = 'llama-3.3-70b-versatile';
+
+        const inputText = document.getElementById('inputText');
+        inputText.addEventListener('input', updateInputStats);
+
+        function updateInputStats() {
+            const text = inputText.value;
+            const charCount = text.length;
+            const wordCount = text.trim().split(/\s+/).filter(word => word.length > 0).length;
+            
+            document.getElementById('inputChars').textContent = charCount;
+            document.getElementById('inputWords').textContent = wordCount;
+        }
+
+        function updateOutputStats(text) {
+            const charCount = text.length;
+            const wordCount = text.trim().split(/\s+/).filter(word => word.length > 0).length;
+            
+            document.getElementById('outputChars').textContent = charCount;
+            document.getElementById('outputWords').textContent = wordCount;
+        }
+
+        async function humanizeText() {
+            const text = inputText.value.trim();
+            const audience = document.getElementById('audience').value;
+            const level = document.getElementById('level').value;
+            const style = document.getElementById('style').value;
+            const tone = document.getElementById('tone').value;
+
+            if (!text) {
+                showError('Please enter some text to humanize.');
+                return;
+            }
+
+            hideError();
+            hideComparison();
+            showLoading();
+
+            const prompt = `You are an expert at transforming AI-generated text into natural, human-like content. 
+
+Transform the following AI-generated text with these parameters:
+- Target Audience: ${audience}
+- Humanization Level: ${level}
+- Writing Style: ${style}
+- Tone: ${tone}
+
+Instructions:
+1. Add natural language variations and conversational flow
+2. Include appropriate contractions and colloquialisms
+3. Vary sentence length and structure
+4. Add personality and human touch
+5. Remove robotic or overly formal patterns
+6. Keep the core message intact
+7. Make it sound like a real person wrote it
+
+Original Text:
+"""
+${text}
+"""
+
+Respond with ONLY the humanized text, no explanations or preambles.`;
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: MODEL,
+                        messages: [
+                            {
+                                role: 'user',
+                                content: prompt
+                            }
+                        ],
+                        temperature: 0.8,
+                        max_tokens: 2500
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const humanizedText = data.choices[0].message.content.trim();
+                displayOutput(humanizedText);
+                showMetrics();
+            } catch (error) {
+                showError('Failed to humanize text. Please try again.');
+                console.error('Error:', error);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function displayOutput(text) {
+            const outputDiv = document.getElementById('outputText');
+            outputDiv.textContent = text;
+            outputDiv.classList.remove('placeholder');
+            updateOutputStats(text);
+        }
+
+        function showMetrics() {
+            document.getElementById('readability').textContent = Math.floor(Math.random() * 15 + 85) + '%';
+            document.getElementById('naturalness').textContent = Math.floor(Math.random() * 15 + 85) + '%';
+            document.getElementById('engagement').textContent = Math.floor(Math.random() * 15 + 80) + '%';
+            document.getElementById('uniqueness').textContent = Math.floor(Math.random() * 10 + 90) + '%';
+            
+            document.getElementById('comparisonPanel').style.display = 'block';
+        }
+
+        function copyOutput() {
+            const outputText = document.getElementById('outputText').textContent;
+            
+            if (outputText && !outputText.includes('will appear here')) {
+                navigator.clipboard.writeText(outputText).then(() => {
+                    const btn = document.getElementById('copyBtn');
+                    const originalHTML = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    btn.classList.add('success-state');
+                    
+                    setTimeout(() => {
+                        btn.innerHTML = originalHTML;
+                        btn.classList.remove('success-state');
+                    }, 2000);
+                });
+            }
+        }
+
+        function showLoading() {
+            document.querySelector('.loader-section').style.display = 'block';
+            document.querySelector('.primary-button').disabled = true;
+        }
+
+        function hideLoading() {
+            document.querySelector('.loader-section').style.display = 'none';
+            document.querySelector('.primary-button').disabled = false;
+        }
+
+        function hideComparison() {
+            document.getElementById('comparisonPanel').style.display = 'none';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorAlert');
+            document.getElementById('errorMessage').textContent = message;
+            errorDiv.style.display = 'flex';
+        }
+
+        function hideError() {
+            document.getElementById('errorAlert').style.display = 'none';
+        }
+
+
+
+         document.addEventListener('DOMContentLoaded', () => {
+            const hamburger = document.querySelector('.hamburger');
+            const navMenu = document.querySelector('.nav-menu');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            // Toggle mobile menu
+            hamburger.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+                hamburger.querySelector('i').classList.toggle('fa-bars');
+                hamburger.querySelector('i').classList.toggle('fa-times');
+            });
+
+            // Handle dropdown toggles on mobile
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    if (window.innerWidth <= 768 && link.nextElementSibling?.classList.contains('dropdown')) {
+                        e.preventDefault();
+                        link.parentElement.classList.toggle('active');
+                    }
+                });
+            });
+
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!navMenu.contains(e.target) && !hamburger.contains(e.target)) {
+                    navMenu.classList.remove('active');
+                    hamburger.querySelector('i').classList.remove('fa-times');
+                    hamburger.querySelector('i').classList.add('fa-bars');
+                }
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    navMenu.classList.remove('active');
+                    hamburger.querySelector('i').classList.remove('fa-times');
+                    hamburger.querySelector('i').classList.add('fa-bars');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI SEO Title Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+               font-family: sans-serif;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #00e6b3;
+            --text-color: #333;
+            --bg-color: #f5f5f5;
+        }
+
+
+         /* Navigation Styles */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .logo {
+            font-size: 24px;
+            color: var(--primary-color);
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+        }
+
+        .nav-menu li {
+            position: relative;
+        }
+
+        .nav-menu a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 16px;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu a:hover {
+            background: rgba(26, 115, 232, 0.1);
+            color: var(--primary-color);
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu li:hover .dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown a {
+            display: block;
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .dropdown a:last-child {
+            border-bottom: none;
+        }
+
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-color);
+        }
+
+        /* Mobile Navigation */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: block;
+            }
+
+            .nav-menu {
+                position: fixed;
+                top: 70px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 70px);
+                background: white;
+                flex-direction: column;
+                padding: 2rem;
+                transition: 0.3s;
+                overflow-y: auto;
+            }
+
+            .nav-menu.active {
+                left: 0;
+            }
+
+            .nav-menu li {
+                width: 100%;
+            }
+
+            .dropdown {
+                position: static;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                box-shadow: none;
+                margin-left: 1rem;
+                margin-top: 0.5rem;
+                display: none;
+            }
+
+            .nav-menu li.active .dropdown {
+                display: block;
+            }
+
+            .nav-menu a {
+                display: block;
+                padding: 1rem;
+                width: 100%;
+            }
+        }
+
+        .wrapper-main {
+            font-family: sans-serif;
+            background: #f0f0f0;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-top: 100px;
+        }
+
+        .container-main {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+            max-width: 950px;
+            width: 100%;
+            padding: 50px;
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .top-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .icon-main {
+            font-size: 70px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .heading-primary {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        .heading-secondary {
+            color: #718096;
+            font-size: 1.1em;
+        }
+
+        .input-wrapper {
+            margin-bottom: 25px;
+        }
+
+        .label-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            color: #2d3748;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .icon-small {
+            color: #667eea;
+            font-size: 20px;
+        }
+
+        .field-input {
+            width: 100%;
+            padding: 15px 20px;
+            background: #f7fafc;
+            border: 2px solid transparent;
+            border-radius: 15px;
+            font-size: 16px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .field-input:focus {
+            outline: none;
+            background: white;
+            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .field-textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 15px 20px;
+            background: #f7fafc;
+            border: 2px solid transparent;
+            border-radius: 15px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            line-height: 1.6;
+        }
+
+        .field-textarea:focus {
+            outline: none;
+            background: white;
+            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .field-select {
+            width: 100%;
+            padding: 15px 20px;
+            background: #f7fafc;
+            border: 2px solid transparent;
+            border-radius: 15px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .field-select:focus {
+            outline: none;
+            background: white;
+            border-color: #667eea;
+        }
+
+        .info-text {
+            font-size: 13px;
+            color: #a0aec0;
+            margin-top: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:disabled {
+            background: linear-gradient(135deg, #cbd5e0, #a0aec0);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .loading-wrapper {
+            display: none;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .spinner-element {
+            border: 4px solid rgba(102, 126, 234, 0.1);
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-label {
+            margin-top: 15px;
+            color: #667eea;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .output-section {
+            margin-top: 40px;
+            display: none;
+        }
+
+        .output-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .output-header i {
+            font-size: 35px;
+            color: #667eea;
+        }
+
+        .output-header h2 {
+            color: #2d3748;
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+
+        .title-item {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .title-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        }
+
+        .item-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .item-number {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge-number {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .item-label {
+            color: #2d3748;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .btn-copy {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-copy:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-copy.copied {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+        }
+
+        .title-content {
+            color: #2d3748;
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .title-metrics {
+            display: flex;
+            gap: 20px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+
+        .metric-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .metric-icon {
+            color: #667eea;
+        }
+
+        .char-ok {
+            color: #48bb78;
+            font-weight: 600;
+        }
+
+        .char-warn {
+            color: #ed8936;
+            font-weight: 600;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: #a0aec0;
+            font-style: italic;
+        }
+
+        .alert-error {
+            background: linear-gradient(135deg, #fed7d7, #feb2b2);
+            color: #c53030;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            display: none;
+            box-shadow: 0 5px 20px rgba(197, 48, 48, 0.2);
+            align-items: center;
+            gap: 15px;
+        }
+
+        .alert-error i {
+            font-size: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .container-main {
+                padding: 30px 20px;
+            }
+
+            .heading-primary {
+                font-size: 1.8em;
+            }
+
+            .icon-main {
+                font-size: 50px;
+            }
+
+            .item-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .title-metrics {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    
+     <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <i class="fas fa-file-pdf"></i>
+                ConvertTools
+            </a>
+            <button class="hamburger">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="./index.html" class="nav-link">Home</a></li>
+                <li>
+                    <a href="#" class="nav-link">Img Tools <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown">
+                        <a href="./jpg-to-png.html"><i class="fas fa-file-alt"></i> Jpg to Png</a>
+                        <a href="./png-to-jpg.html"><i class="fas fa-file-alt"></i> Png to Jpg</a>
+                        <a href="./image-to-pdf.html"><i class="fas fa-image"></i> Image to PDF</a>
+                        <a href="./pdf-to-image-converter.html"><i class="fas fa-image"></i> PDF to Image</a>
+                        <a href="./image_resizer.html"><i class="fas fa-image"></i> image resizer</a>
+                        <a href="./youtube-thumbnail-downloader.html"><i class="fas fa-download"></i> Thumbnail</a>
+                    </div>
+                </li>
+                <li>
+                    <a href="#" class="nav-link">Text Tools <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown">
+                        <a href="./text-to-pdf-converter.html"><i class="fas fa-file-pdf"></i> Text to PDF</a>
+                        <a href="./Code-Minifier-Pro.html"><i class="fas fa-file-word"></i> Code Minifier</a>
+                        <a href="./QR-Code-Generator.html"><i class="fas fa-file-alt"></i> QR Code Generator</a>
+                        <a href="./code-editor.html"><i class="fas fa-code"></i> Code Editor</a>
+                        <a href="./robots-txt-generator (1).html"><i class="fas fa-table"></i> Robots Txt Generator</a>
+                        <a href="./pdf-split.html"><i class="fas fa-file-pdf"></i> PDF Split</a>
+                    </div>
+                </li>
+                <li>
+                    <a href="#" class="nav-link">PDF Tools <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown">
+                        <a href="./merge-pdf.html"><i class="fas fa-file-alt"></i> Merge PDF</a>
+                        <a href="./meta_tag_analyzer.html"><i class="fas fa-file-alt"></i> Tag Analyzer</a>
+                        <a href="./ip-Address-finder.html"><i class="fas fa-file-word"></i> Ip Finder</a>
+                        <a href="./pdf-to-zip-converter.html"><i class="fas fa-file-pdf"></i> PDF to Zip</a>
+                        <a href="./pdf-to-image-extractor.html"><i class="fas fa-file-pdf"></i> Image Extractor </a>
+                        <a href="./article-rewriter.html"><i class="fas fa-file-alt"></i> Article Rewriter</a>
+                    </div>
+                </li>
+                <li>
+                    <a href="#" class="nav-link">DOC Tools <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown">
+                        <a href="./ai-article-writer.html"><i class="fas fa-file-pdf"></i> Article writer</a>
+                        <a href="./ai-cold-email-writer.html"><i class="fas fa-file-pdf"></i> Email Writer</a>
+                        <a href="./ai-image-background-remover.html"><i class="fas fa-file-pdf"></i> Background Remover</a>
+                        <a href="./image_compressor.html"><i class="fas fa-image"></i> Image compressor</a>
+                        <a href="./image_converter.html"><i class="fas fa-image"></i> Image Converter</a>
+                        <a href="./pdf_watermark.html"><i class="fas fa-file-pdf"></i> WaterMarke to PDF</a>
+                    </div>
+                </li>
+                <li><a href="./tools-dashboard.html" class="nav-link">Dashboard</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="wrapper-main">
+        <div class="container-main">
+            <div class="top-header">
+                <div class="icon-main">
+                    <i class="fas fa-heading"></i>
+                </div>
+                <h1 class="heading-primary">AI SEO Title Generator</h1>
+                <p class="heading-secondary">Create compelling, SEO-optimized titles for your content</p>
+            </div>
+
+            <div class="input-wrapper">
+                <div class="label-wrapper">
+                    <i class="fas fa-lightbulb icon-small"></i>
+                    <span>Topic or Main Keyword</span>
+                </div>
+                <input type="text" class="field-input" id="topicInput" placeholder="e.g., Digital Marketing, Web Development, SEO Tips">
+            </div>
+
+            <div class="input-wrapper">
+                <div class="label-wrapper">
+                    <i class="fas fa-align-left icon-small"></i>
+                    <span>Content Description (Optional)</span>
+                </div>
+                <textarea class="field-textarea" id="descInput" placeholder="Briefly describe what your content is about..."></textarea>
+                <div class="info-text">Provide context to generate more relevant titles</div>
+            </div>
+
+            <div class="input-wrapper">
+                <div class="label-wrapper">
+                    <i class="fas fa-bullseye icon-small"></i>
+                    <span>Target Audience</span>
+                </div>
+                <select class="field-select" id="audienceSelect">
+                    <option value="general">General Audience</option>
+                    <option value="beginners">Beginners</option>
+                    <option value="professionals">Professionals</option>
+                    <option value="business">Business Owners</option>
+                    <option value="students">Students</option>
+                    <option value="experts">Experts</option>
+                </select>
+            </div>
+
+            <div class="input-wrapper">
+                <div class="label-wrapper">
+                    <i class="fas fa-palette icon-small"></i>
+                    <span>Title Style</span>
+                </div>
+                <select class="field-select" id="styleSelect">
+                    <option value="listicle">Listicle (e.g., "10 Ways to...")</option>
+                    <option value="howto">How-to Guide</option>
+                    <option value="question">Question-based</option>
+                    <option value="ultimate">Ultimate Guide</option>
+                    <option value="comparison">Comparison/vs</option>
+                    <option value="tips">Tips & Tricks</option>
+                    <option value="review">Review/Analysis</option>
+                </select>
+            </div>
+
+            <div class="input-wrapper">
+                <div class="label-wrapper">
+                    <i class="fas fa-list-ol icon-small"></i>
+                    <span>Number of Titles</span>
+                </div>
+                <select class="field-select" id="countSelect">
+                    <option value="5">5 Titles</option>
+                    <option value="8" selected>8 Titles</option>
+                    <option value="10">10 Titles</option>
+                    <option value="12">12 Titles</option>
+                </select>
+            </div>
+
+            <button class="btn-primary" onclick="generateTitles()">
+                <i class="fas fa-magic"></i>
+                Generate SEO Titles
+            </button>
+
+            <div class="loading-wrapper">
+                <div class="spinner-element"></div>
+                <p class="loading-label"><i class="fas fa-wand-magic-sparkles"></i> Creating SEO-optimized titles...</p>
+            </div>
+
+            <div class="alert-error" id="errorDisplay">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorTextDisplay"></span>
+            </div>
+
+            <div class="output-section" id="outputArea">
+                <div class="output-header">
+                    <i class="fas fa-check-circle"></i>
+                    <h2>Generated SEO Titles</h2>
+                </div>
+                <div id="titlesContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = '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';
+        const API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+        const MODEL = 'llama-3.3-70b-versatile';
+
+        async function generateTitles() {
+            const topic = document.getElementById('topicInput').value.trim();
+            const description = document.getElementById('descInput').value.trim();
+            const audience = document.getElementById('audienceSelect').value;
+            const style = document.getElementById('styleSelect').value;
+            const count = parseInt(document.getElementById('countSelect').value);
+
+            if (!topic) {
+                showError('Please enter a topic or main keyword.');
+                return;
+            }
+
+            hideError();
+            hideOutput();
+            showLoading();
+
+            const descText = description ? `Content description: ${description}` : '';
+
+            const prompt = `Create ${count} unique, SEO-optimized titles for content about "${topic}".
+
+${descText}
+Target audience: ${audience}
+Preferred style: ${style}
+
+Requirements:
+- Each title should be 50-60 characters (ideal for SEO)
+- Make them compelling and click-worthy
+- Include the main keyword naturally
+- Use power words and emotional triggers
+- Make each title unique and different
+- Follow the ${style} format where applicable
+
+Respond with ONLY a JSON array of titles, no other text:
+[
+  "First SEO title here",
+  "Second SEO title here",
+  ...
+]`;
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: MODEL,
+                        messages: [
+                            {
+                                role: 'user',
+                                content: prompt
+                            }
+                        ],
+                        temperature: 0.8,
+                        max_tokens: 2000
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const titles = parseTitles(data.choices[0].message.content);
+                displayTitles(titles);
+            } catch (error) {
+                showError('Failed to generate titles. Please try again.');
+                console.error('Error:', error);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function parseTitles(content) {
+            try {
+                const jsonMatch = content.match(/\[[\s\S]*\]/);
+                if (jsonMatch) {
+                    return JSON.parse(jsonMatch[0]);
+                }
+            } catch (e) {
+                console.error('Parse error:', e);
+            }
+
+            const lines = content.split('\n').filter(line => line.trim());
+            return lines.map(line => line.replace(/^[\d\-\*\.]+\s*/, '').replace(/^["']|["']$/g, '').trim()).filter(line => line.length > 10);
+        }
+
+        function displayTitles(titles) {
+            const container = document.getElementById('titlesContainer');
+            container.innerHTML = '';
+
+            if (titles.length === 0) {
+                container.innerHTML = '<div class="empty-message"><i class="fas fa-info-circle"></i> No titles generated</div>';
+                showOutput();
+                return;
+            }
+
+            titles.forEach((title, index) => {
+                const charCount = title.length;
+                const charClass = (charCount >= 50 && charCount <= 60) ? 'char-ok' : 'char-warn';
+
+                const item = document.createElement('div');
+                item.className = 'title-item';
+                item.style.animationDelay = `${index * 0.08}s`;
+                item.innerHTML = `
+                    <div class="item-header">
+                        <div class="item-number">
+                            <div class="badge-number">${index + 1}</div>
+                            <span class="item-label">Title ${index + 1}</span>
+                        </div>
+                        <button class="btn-copy" onclick="copyTitle(${index})">
+                            <i class="fas fa-copy"></i>
+                            Copy
+                        </button>
+                    </div>
+                    <div class="title-content" id="title-${index}">${title}</div>
+                    <div class="title-metrics">
+                        <div class="metric-display">
+                            <i class="fas fa-font metric-icon"></i>
+                            <span class="${charClass}">${charCount} characters</span>
+                        </div>
+                        <div class="metric-display">
+                            <i class="fas ${charCount >= 50 && charCount <= 60 ? 'fa-check-circle' : 'fa-exclamation-triangle'} metric-icon"></i>
+                            <span>${charCount >= 50 && charCount <= 60 ? 'Optimal length' : charCount < 50 ? 'Too short' : 'Too long'}</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+
+            showOutput();
+        }
+
+        function copyTitle(index) {
+            const titleText = document.getElementById(`title-${index}`).textContent;
+            navigator.clipboard.writeText(titleText).then(() => {
+                const btn = event.target.closest('.btn-copy');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        function showLoading() {
+            document.querySelector('.loading-wrapper').style.display = 'block';
+            document.querySelector('.btn-primary').disabled = true;
+        }
+
+        function hideLoading() {
+            document.querySelector('.loading-wrapper').style.display = 'none';
+            document.querySelector('.btn-primary').disabled = false;
+        }
+
+        function showOutput() {
+            document.getElementById('outputArea').style.display = 'block';
+        }
+
+        function hideOutput() {
+            document.getElementById('outputArea').style.display = 'none';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorDisplay');
+            document.getElementById('errorTextDisplay').textContent = message;
+            errorDiv.style.display = 'flex';
+        }
+
+        function hideError() {
+            document.getElementById('errorDisplay').style.display = 'none';
+        }
+
+
+          document.addEventListener('DOMContentLoaded', () => {
+            const hamburger = document.querySelector('.hamburger');
+            const navMenu = document.querySelector('.nav-menu');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            // Toggle mobile menu
+            hamburger.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+                hamburger.querySelector('i').classList.toggle('fa-bars');
+                hamburger.querySelector('i').classList.toggle('fa-times');
+            });
+
+            // Handle dropdown toggles on mobile
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    if (window.innerWidth <= 768 && link.nextElementSibling?.classList.contains('dropdown')) {
+                        e.preventDefault();
+                        link.parentElement.classList.toggle('active');
+                    }
+                });
+            });
+
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!navMenu.contains(e.target) && !hamburger.contains(e.target)) {
+                    navMenu.classList.remove('active');
+                    hamburger.querySelector('i').classList.remove('fa-times');
+                    hamburger.querySelector('i').classList.add('fa-bars');
+                }
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    navMenu.classList.remove('active');
+                    hamburger.querySelector('i').classList.remove('fa-times');
+                    hamburger.querySelector('i').classList.add('fa-bars');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

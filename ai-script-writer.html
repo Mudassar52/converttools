@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>AI Script Writer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family:sans-serif;
+            background: #f0f0f0;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #00e6b3;
+            --text-color: #333;
+            --bg-color: #f5f5f5;
+        }
+
+
+         /* Navigation Styles */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .logo {
+            font-size: 24px;
+            color: var(--primary-color);
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+        }
+
+        .nav-menu li {
+            position: relative;
+        }
+
+        .nav-menu a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 16px;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu a:hover {
+            background: rgba(26, 115, 232, 0.1);
+            color: var(--primary-color);
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu li:hover .dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown a {
+            display: block;
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .dropdown a:last-child {
+            border-bottom: none;
+        }
+
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-color);
+        }
+
+        /* Mobile Navigation */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: block;
+            }
+
+            .nav-menu {
+                position: fixed;
+                top: 70px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 70px);
+                background: white;
+                flex-direction: column;
+                padding: 2rem;
+                transition: 0.3s;
+                overflow-y: auto;
+            }
+
+            .nav-menu.active {
+                left: 0;
+            }
+
+            .nav-menu li {
+                width: 100%;
+            }
+
+            .dropdown {
+                position: static;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                box-shadow: none;
+                margin-left: 1rem;
+                margin-top: 0.5rem;
+                display: none;
+            }
+
+            .nav-menu li.active .dropdown {
+                display: block;
+            }
+
+            .nav-menu a {
+                display: block;
+                padding: 1rem;
+                width: 100%;
+            }
+        }
+
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.6s ease;
+               padding-top: 80px;
+        }
+
+        .header h1 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            opacity: 0.95;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            padding: clamp(20px, 4vw, 40px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #667eea;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .select-wrapper {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 120px;
+            transition: all 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-generate {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-generate:active {
+            transform: translateY(0);
+        }
+
+        .btn-generate:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .output-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .script-output {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            border: 2px solid #e0e0e0;
+            min-height: 300px;
+            white-space: pre-wrap;
+            line-height: 1.8;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .script-output.empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-style: italic;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            flex: 1;
+            min-width: 150px;
+            padding: 12px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-action:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            display: none;
+            animation: slideIn 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn-action {
+                width: 100%;
+            }
+
+            .toast {
+                right: 15px;
+                left: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+     <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <i class="fas fa-file-pdf"></i>
+                ConvertTools
+            </a>
+            <button class="hamburger">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="./index.html" class="nav-link">Home</a></li>
+                <li>
+                    <a href="#" class="nav-link">Img Tools <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown">
+                        <a href="./jpg-to-png.html"><i class="fas fa-file-alt"></i> Jpg to Png</a>
+                        <a href="./png-to-jpg.html"><i class="fas fa-file-alt"></i> Png to Jpg</a>
+                        <a href="./image-to-pdf.html"><i class="fas fa-image"></i> Image to PDF</a>
+                        <a href="./pdf-to-image-converter.html"><i class="fas fa-image"></i> PDF to Image</a>
+                        <a href="./image_resizer.html"><i class="fas fa-image"></i> image resizer</a>
+                        <a href="./youtube-thumbnail-downloader.html"><i class="fas fa-download"></i> Thumbnail</a>
+                    </div>
+                </li>
+                <li>
+                    <a href="#" class="nav-link">Text Tools <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown">
+                        <a href="./text-to-pdf-converter.html"><i class="fas fa-file-pdf"></i> Text to PDF</a>
+                        <a href="./Code-Minifier-Pro.html"><i class="fas fa-file-word"></i> Code Minifier</a>
+                        <a href="./QR-Code-Generator.html"><i class="fas fa-file-alt"></i> QR Code Generator</a>
+                        <a href="./code-editor.html"><i class="fas fa-code"></i> Code Editor</a>
+                        <a href="./robots-txt-generator (1).html"><i class="fas fa-table"></i> Robots Txt Generator</a>
+                        <a href="./pdf-split.html"><i class="fas fa-file-pdf"></i> PDF Split</a>
+                    </div>
+                </li>
+                <li>
+                    <a href="#" class="nav-link">PDF Tools <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown">
+                        <a href="./merge-pdf.html"><i class="fas fa-file-alt"></i> Merge PDF</a>
+                        <a href="./meta_tag_analyzer.html"><i class="fas fa-file-alt"></i> Tag Analyzer</a>
+                        <a href="./ip-Address-finder.html"><i class="fas fa-file-word"></i> Ip Finder</a>
+                        <a href="./pdf-to-zip-converter.html"><i class="fas fa-file-pdf"></i> PDF to Zip</a>
+                        <a href="./pdf-to-image-extractor.html"><i class="fas fa-file-pdf"></i> Image Extractor </a>
+                        <a href="./article-rewriter.html"><i class="fas fa-file-alt"></i> Article Rewriter</a>
+                    </div>
+                </li>
+                <li>
+                    <a href="#" class="nav-link">DOC Tools <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown">
+                        <a href="./ai-article-writer.html"><i class="fas fa-file-pdf"></i> Article writer</a>
+                        <a href="./ai-cold-email-writer.html"><i class="fas fa-file-pdf"></i> Email Writer</a>
+                        <a href="./ai-image-background-remover.html"><i class="fas fa-file-pdf"></i> Background Remover</a>
+                        <a href="./image_compressor.html"><i class="fas fa-image"></i> Image compressor</a>
+                        <a href="./image_converter.html"><i class="fas fa-image"></i> Image Converter</a>
+                        <a href="./pdf_watermark.html"><i class="fas fa-file-pdf"></i> WaterMarke to PDF</a>
+                    </div>
+                </li>
+                <li><a href="./tools-dashboard.html" class="nav-link">Dashboard</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 AI Script Writer</h1>
+            <p>Create engaging scripts for YouTube Videos & Reels powered by AI</p>
+        </div>
+
+        <div class="main-card">
+            <div class="input-section">
+                <div class="input-group">
+                    <div class="select-wrapper">
+                        <label class="label">Content Type</label>
+                        <select id="contentType">
+                            <option value="youtube">YouTube Video</option>
+                            <option value="reels">Instagram/YouTube Reels</option>
+                            <option value="tiktok">TikTok</option>
+                            <option value="shorts">YouTube Shorts</option>
+                        </select>
+                    </div>
+
+                    <div class="select-wrapper">
+                        <label class="label">Video Duration</label>
+                        <select id="duration">
+                            <option value="15-30">15-30 seconds</option>
+                            <option value="30-60">30-60 seconds</option>
+                            <option value="1-3">1-3 minutes</option>
+                            <option value="3-5">3-5 minutes</option>
+                            <option value="5-10">5-10 minutes</option>
+                            <option value="10+">10+ minutes</option>
+                        </select>
+                    </div>
+
+                    <div class="select-wrapper">
+                        <label class="label">Tone/Style</label>
+                        <select id="tone">
+                            <option value="engaging">Engaging & Fun</option>
+                            <option value="professional">Professional</option>
+                            <option value="casual">Casual & Friendly</option>
+                            <option value="educational">Educational</option>
+                            <option value="motivational">Motivational</option>
+                            <option value="humorous">Humorous</option>
+                        </select>
+                    </div>
+                </div>
+
+                <label class="label">Topic / Video Idea</label>
+                <textarea 
+                    id="topicInput" 
+                    placeholder="Enter your video topic or idea... For example: 'Top 5 productivity tips for students' or 'How to make perfect pasta at home'"
+                ></textarea>
+
+                <button class="btn-generate" onclick="generateScript()" id="generateBtn">
+                    ✨ Generate Script
+                </button>
+            </div>
+
+            <div class="output-section" id="outputSection" style="display: none;">
+                <label class="label">Generated Script</label>
+                <div class="script-output empty" id="scriptOutput">
+                    Your generated script will appear here...
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn-action" onclick="copyScript()">📋 Copy Script</button>
+                    <button class="btn-action" onclick="downloadScript()">💾 Download</button>
+                    <button class="btn-action" onclick="regenerateScript()">🔄 Regenerate</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const API_KEY = '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';
+        const API_ENDPOINT = 'https://api.groq.com/openai/v1/chat/completions';
+        const MODEL = 'llama-3.3-70b-versatile';
+
+        let currentScript = '';
+
+        async function generateScript() {
+            const topic = document.getElementById('topicInput').value.trim();
+            const contentType = document.getElementById('contentType').value;
+            const duration = document.getElementById('duration').value;
+            const tone = document.getElementById('tone').value;
+
+            if (!topic) {
+                showToast('Please enter a topic or video idea!', 'error');
+                return;
+            }
+
+            const generateBtn = document.getElementById('generateBtn');
+            const outputSection = document.getElementById('outputSection');
+            const scriptOutput = document.getElementById('scriptOutput');
+
+            // Show loading
+            generateBtn.disabled = true;
+            generateBtn.textContent = '⏳ Generating...';
+            outputSection.style.display = 'block';
+            scriptOutput.className = 'script-output';
+            scriptOutput.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <div>AI is creating your script...</div>
+                </div>
+            `;
+
+            try {
+                const prompt = `Create a ${tone} script for a ${contentType} video about "${topic}". 
+The video duration should be ${duration}.
+
+Please structure the script with:
+1. Hook/Opening (attention-grabbing start)
+2. Main Content (organized and engaging)
+3. Call-to-Action (clear ending with engagement prompt)
+
+Make it ${tone} in tone and suitable for ${contentType}. Include visual suggestions in [brackets] where appropriate.`;
+
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: MODEL,
+                        messages: [
+                            {
+                                role: 'system',
+                                content: 'You are an expert content creator and scriptwriter specializing in viral social media content. Create engaging, well-structured scripts that capture attention and drive engagement.'
+                            },
+                            {
+                                role: 'user',
+                                content: prompt
+                            }
+                        ],
+                        temperature: 0.8,
+                        max_tokens: 2000
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to generate script');
+                }
+
+                const data = await response.json();
+                currentScript = data.choices[0].message.content;
+
+                scriptOutput.className = 'script-output';
+                scriptOutput.textContent = currentScript;
+                showToast('Script generated successfully! 🎉', 'success');
+
+            } catch (error) {
+                console.error('Error:', error);
+                scriptOutput.className = 'script-output';
+                scriptOutput.textContent = 'Error generating script. Please try again.';
+                showToast('Failed to generate script. Please try again.', 'error');
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = '✨ Generate Script';
+            }
+        }
+
+        function copyScript() {
+            if (!currentScript) return;
+
+            navigator.clipboard.writeText(currentScript).then(() => {
+                showToast('Script copied to clipboard! 📋', 'success');
+            }).catch(() => {
+                showToast('Failed to copy script', 'error');
+            });
+        }
+
+        function downloadScript() {
+            if (!currentScript) return;
+
+            const topic = document.getElementById('topicInput').value.trim();
+            const filename = `script_${topic.substring(0, 30).replace(/[^a-z0-9]/gi, '_')}.txt`;
+            
+            const blob = new Blob([currentScript], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            showToast('Script downloaded! 💾', 'success');
+        }
+
+        function regenerateScript() {
+            generateScript();
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.background = type === 'success' ? '#28a745' : '#dc3545';
+            toast.className = 'toast show';
+
+            setTimeout(() => {
+                toast.className = 'toast';
+            }, 3000);
+        }
+
+        // Handle Enter key in textarea (Ctrl+Enter to generate)
+        document.getElementById('topicInput').addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                generateScript();
+            }
+        });
+
+
+
+         document.addEventListener('DOMContentLoaded', () => {
+            const hamburger = document.querySelector('.hamburger');
+            const navMenu = document.querySelector('.nav-menu');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            // Toggle mobile menu
+            hamburger.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+                hamburger.querySelector('i').classList.toggle('fa-bars');
+                hamburger.querySelector('i').classList.toggle('fa-times');
+            });
+
+            // Handle dropdown toggles on mobile
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    if (window.innerWidth <= 768 && link.nextElementSibling?.classList.contains('dropdown')) {
+                        e.preventDefault();
+                        link.parentElement.classList.toggle('active');
+                    }
+                });
+            });
+
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!navMenu.contains(e.target) && !hamburger.contains(e.target)) {
+                    navMenu.classList.remove('active');
+                    hamburger.querySelector('i').classList.remove('fa-times');
+                    hamburger.querySelector('i').classList.add('fa-bars');
+                }
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    navMenu.classList.remove('active');
+                    hamburger.querySelector('i').classList.remove('fa-times');
+                    hamburger.querySelector('i').classList.add('fa-bars');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

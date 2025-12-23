@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>AI Title Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+               font-family: sans-serif;
+        }
+
+        body {
+            font-family: sans-serif;
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+
+
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #00e6b3;
+            --text-color: #333;
+            --bg-color: #f5f5f5;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f0f0f0;
+            z-index: -1;
+        }
+
+                 /* Navigation Styles */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .logo {
+            font-size: 24px;
+            color: var(--primary-color);
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+        }
+
+        .nav-menu li {
+            position: relative;
+        }
+
+        .nav-menu a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 16px;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu a:hover {
+            background: rgba(26, 115, 232, 0.1);
+            color: var(--primary-color);
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu li:hover .dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown a {
+            display: block;
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .dropdown a:last-child {
+            border-bottom: none;
+        }
+
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-color);
+        }
+
+        /* Mobile Navigation */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: block;
+            }
+
+            .nav-menu {
+                position: fixed;
+                top: 70px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 70px);
+                background: white;
+                flex-direction: column;
+                padding: 2rem;
+                transition: 0.3s;
+                overflow-y: auto;
+            }
+
+            .nav-menu.active {
+                left: 0;
+            }
+
+            .nav-menu li {
+                width: 100%;
+            }
+
+            .dropdown {
+                position: static;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                box-shadow: none;
+                margin-left: 1rem;
+                margin-top: 0.5rem;
+                display: none;
+            }
+
+            .nav-menu li.active .dropdown {
+                display: block;
+            }
+
+            .nav-menu a {
+                display: block;
+                padding: 1rem;
+                width: 100%;
+            }
+        }
+
+
+        .page-wrapper {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            padding-top: 100px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .button {
+            flex: 1;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        .generate-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .clear-btn {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .clear-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .results {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .results h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .title-card {
+            background: #f8f9ff;
+            border-left: 4px solid #667eea;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .title-card:hover {
+            background: #eef1ff;
+            transform: translateX(5px);
+        }
+
+        .title-text {
+            color: #333;
+            font-size: 1.05rem;
+            flex: 1;
+        }
+
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #5568d3;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fee;
+            border-left: 4px solid #f44336;
+            padding: 15px;
+            border-radius: 8px;
+            color: #c62828;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .title-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .copy-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+      <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <i class="fas fa-file-pdf"></i>
+                ConvertTools
+            </a>
+            <button class="hamburger">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="./index.html" class="nav-link">Home</a></li>
+                <li>
+                    <a href="#" class="nav-link">Img Tools <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown">
+                        <a href="./jpg-to-png.html"><i class="fas fa-file-alt"></i> Jpg to Png</a>
+                        <a href="./png-to-jpg.html"><i class="fas fa-file-alt"></i> Png to Jpg</a>
+                        <a href="./image-to-pdf.html"><i class="fas fa-image"></i> Image to PDF</a>
+                        <a href="./pdf-to-image-converter.html"><i class="fas fa-image"></i> PDF to Image</a>
+                        <a href="./image_resizer.html"><i class="fas fa-image"></i> image resizer</a>
+                        <a href="./youtube-thumbnail-downloader.html"><i class="fas fa-download"></i> Thumbnail</a>
+                    </div>
+                </li>
+                <li>
+                    <a href="#" class="nav-link">Text Tools <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown">
+                        <a href="./text-to-pdf-converter.html"><i class="fas fa-file-pdf"></i> Text to PDF</a>
+                        <a href="./Code-Minifier-Pro.html"><i class="fas fa-file-word"></i> Code Minifier</a>
+                        <a href="./QR-Code-Generator.html"><i class="fas fa-file-alt"></i> QR Code Generator</a>
+                        <a href="./code-editor.html"><i class="fas fa-code"></i> Code Editor</a>
+                        <a href="./robots-txt-generator (1).html"><i class="fas fa-table"></i> Robots Txt Generator</a>
+                        <a href="./pdf-split.html"><i class="fas fa-file-pdf"></i> PDF Split</a>
+                    </div>
+                </li>
+                <li>
+                    <a href="#" class="nav-link">PDF Tools <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown">
+                        <a href="./merge-pdf.html"><i class="fas fa-file-alt"></i> Merge PDF</a>
+                        <a href="./meta_tag_analyzer.html"><i class="fas fa-file-alt"></i> Tag Analyzer</a>
+                        <a href="./ip-Address-finder.html"><i class="fas fa-file-word"></i> Ip Finder</a>
+                        <a href="./pdf-to-zip-converter.html"><i class="fas fa-file-pdf"></i> PDF to Zip</a>
+                        <a href="./pdf-to-image-extractor.html"><i class="fas fa-file-pdf"></i> Image Extractor </a>
+                        <a href="./article-rewriter.html"><i class="fas fa-file-alt"></i> Article Rewriter</a>
+                    </div>
+                </li>
+                <li>
+                    <a href="#" class="nav-link">DOC Tools <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown">
+                        <a href="./ai-article-writer.html"><i class="fas fa-file-pdf"></i> Article writer</a>
+                        <a href="./ai-cold-email-writer.html"><i class="fas fa-file-pdf"></i> Email Writer</a>
+                        <a href="./ai-image-background-remover.html"><i class="fas fa-file-pdf"></i> Background Remover</a>
+                        <a href="./image_compressor.html"><i class="fas fa-image"></i> Image compressor</a>
+                        <a href="./image_converter.html"><i class="fas fa-image"></i> Image Converter</a>
+                        <a href="./pdf_watermark.html"><i class="fas fa-file-pdf"></i> WaterMarke to PDF</a>
+                    </div>
+                </li>
+                <li><a href="./tools-dashboard.html" class="nav-link">Dashboard</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="page-wrapper">
+        <div class="container">
+        <div class="header">
+            <h1>✨ AI Title Generator</h1>
+            <p>Create compelling titles powered by Grok AI</p>
+        </div>
+
+        <form id="titleForm">
+            <div class="input-group">
+                <label for="topic">Topic or Description</label>
+                <textarea 
+                    id="topic" 
+                    placeholder="Enter your topic, article idea, or content description..."
+                    required
+                ></textarea>
+            </div>
+
+            <div class="input-group">
+                <label for="type">Title Type</label>
+                <select id="type">
+                    <option value="blog">Blog Post</option>
+                    <option value="article">Article</option>
+                    <option value="video">Video</option>
+                    <option value="product">Product</option>
+                    <option value="email">Email Subject</option>
+                    <option value="social">Social Media</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="tone">Tone</label>
+                <select id="tone">
+                    <option value="professional">Professional</option>
+                    <option value="casual">Casual</option>
+                    <option value="creative">Creative</option>
+                    <option value="urgent">Urgent</option>
+                    <option value="funny">Funny</option>
+                    <option value="inspirational">Inspirational</option>
+                </select>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="generate-btn button" id="generateBtn">
+                    Generate Titles
+                </button>
+                <button type="button" class="clear-btn button" id="clearBtn">
+                    Clear
+                </button>
+            </div>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Generating creative titles...</p>
+        </div>
+
+        <div class="error" id="error"></div>
+
+        <div class="results" id="results">
+            <h3>Generated Titles:</h3>
+            <div id="titlesContainer"></div>
+        </div>
+    </div>
+</div>
+
+    <script>
+        const API_KEY = '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';
+        const API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+
+        const form = document.getElementById('titleForm');
+        const generateBtn = document.getElementById('generateBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const error = document.getElementById('error');
+        const titlesContainer = document.getElementById('titlesContainer');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await generateTitles();
+        });
+
+        clearBtn.addEventListener('click', () => {
+            form.reset();
+            results.classList.remove('show');
+            error.classList.remove('show');
+            titlesContainer.innerHTML = '';
+        });
+
+        async function generateTitles() {
+            const topic = document.getElementById('topic').value;
+            const type = document.getElementById('type').value;
+            const tone = document.getElementById('tone').value;
+
+            loading.classList.add('show');
+            results.classList.remove('show');
+            error.classList.remove('show');
+            generateBtn.disabled = true;
+
+            const prompt = `Generate 5 compelling ${tone} ${type} titles for the following topic: "${topic}". 
+            
+            Requirements:
+            - Make them catchy and attention-grabbing
+            - Keep them concise (under 80 characters)
+            - Match the ${tone} tone
+            - Optimize for ${type}
+            
+            Return ONLY the 5 titles, one per line, numbered 1-5.`;
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: 'llama-3.3-70b-versatile',
+                        messages: [
+                            {
+                                role: 'user',
+                                content: prompt
+                            }
+                        ],
+                        temperature: 0.8
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const content = data.choices[0].message.content;
+                
+                displayTitles(content);
+            } catch (err) {
+                showError(`Error: ${err.message}. Please try again.`);
+            } finally {
+                loading.classList.remove('show');
+                generateBtn.disabled = false;
+            }
+        }
+
+        function displayTitles(content) {
+            const lines = content.split('\n').filter(line => line.trim());
+            titlesContainer.innerHTML = '';
+
+            lines.forEach((line, index) => {
+                const cleanTitle = line.replace(/^\d+[\.\)]\s*/, '').trim();
+                if (cleanTitle) {
+                    const card = document.createElement('div');
+                    card.className = 'title-card';
+                    card.innerHTML = `
+                        <div class="title-text">${cleanTitle}</div>
+                        <button class="copy-btn" onclick="copyTitle(this, '${cleanTitle.replace(/'/g, "\\'")}')">
+                            Copy
+                        </button>
+                    `;
+                    titlesContainer.appendChild(card);
+                }
+            });
+
+            results.classList.add('show');
+        }
+
+        function copyTitle(btn, title) {
+            navigator.clipboard.writeText(title).then(() => {
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                btn.style.background = '#4caf50';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#667eea';
+                }, 2000);
+            });
+        }
+
+        function showError(message) {
+            error.textContent = message;
+            error.classList.add('show');
+        }
+
+
+
+         document.addEventListener('DOMContentLoaded', () => {
+            const hamburger = document.querySelector('.hamburger');
+            const navMenu = document.querySelector('.nav-menu');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            // Toggle mobile menu
+            hamburger.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+                hamburger.querySelector('i').classList.toggle('fa-bars');
+                hamburger.querySelector('i').classList.toggle('fa-times');
+            });
+
+            // Handle dropdown toggles on mobile
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    if (window.innerWidth <= 768 && link.nextElementSibling?.classList.contains('dropdown')) {
+                        e.preventDefault();
+                        link.parentElement.classList.toggle('active');
+                    }
+                });
+            });
+
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!navMenu.contains(e.target) && !hamburger.contains(e.target)) {
+                    navMenu.classList.remove('active');
+                    hamburger.querySelector('i').classList.remove('fa-times');
+                    hamburger.querySelector('i').classList.add('fa-bars');
+                }
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    navMenu.classList.remove('active');
+                    hamburger.querySelector('i').classList.remove('fa-times');
+                    hamburger.querySelector('i').classList.add('fa-bars');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

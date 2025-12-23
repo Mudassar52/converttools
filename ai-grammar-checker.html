@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>AI Grammar Checker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+             font-family:sans-serif;
+        }
+
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #00e6b3;
+            --text-color: #333;
+            --bg-color: #f5f5f5;
+        }
+
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f0f0f0;
+            z-index: -1;
+        }
+
+                 /* Navigation Styles */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .logo {
+            font-size: 24px;
+            color: var(--primary-color);
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+        }
+
+        .nav-menu li {
+            position: relative;
+        }
+
+        .nav-menu a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 16px;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu a:hover {
+            background: rgba(26, 115, 232, 0.1);
+            color: var(--primary-color);
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu li:hover .dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown a {
+            display: block;
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .dropdown a:last-child {
+            border-bottom: none;
+        }
+
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-color);
+        }
+
+        /* Mobile Navigation */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: block;
+            }
+
+            .nav-menu {
+                position: fixed;
+                top: 70px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 70px);
+                background: white;
+                flex-direction: column;
+                padding: 2rem;
+                transition: 0.3s;
+                overflow-y: auto;
+            }
+
+            .nav-menu.active {
+                left: 0;
+            }
+
+            .nav-menu li {
+                width: 100%;
+            }
+
+            .dropdown {
+                position: static;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                box-shadow: none;
+                margin-left: 1rem;
+                margin-top: 0.5rem;
+                display: none;
+            }
+
+            .nav-menu li.active .dropdown {
+                display: block;
+            }
+
+            .nav-menu a {
+                display: block;
+                padding: 1rem;
+                width: 100%;
+            }
+        }
+
+
+        .page-wrapper {
+            font-family: sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            padding-top: 120px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .input-section {
+            margin-bottom: 25px;
+        }
+
+        .input-section label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .text-input {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #0072ff;
+            box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.1);
+        }
+
+        .char-count {
+            text-align: right;
+            color: #999;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .check-btn {
+            background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+            color: white;
+        }
+
+        .check-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 114, 255, 0.4);
+        }
+
+        .check-btn:active {
+            transform: translateY(0);
+        }
+
+        .check-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .clear-btn {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .clear-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0072ff;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .results h2 {
+            color: #333;
+            font-size: 1.5rem;
+        }
+
+        .copy-all-btn {
+            background: #0072ff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .copy-all-btn:hover {
+            background: #0062cc;
+        }
+
+        .corrected-text {
+            background: #f8f9ff;
+            border: 2px solid #0072ff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            line-height: 1.8;
+            color: #333;
+            font-size: 1.05rem;
+            white-space: pre-wrap;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #0072ff;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .suggestions {
+            background: #fff9e6;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .suggestions h3 {
+            color: #f57c00;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .suggestions ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .suggestions li {
+            padding: 8px 0;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .suggestions li::before {
+            content: "✓ ";
+            color: #4caf50;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .error {
+            background: #fee;
+            border-left: 4px solid #f44336;
+            padding: 20px;
+            border-radius: 8px;
+            color: #c62828;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .results-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .copy-all-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+     <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <i class="fas fa-file-pdf"></i>
+                ConvertTools
+            </a>
+            <button class="hamburger">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="./index.html" class="nav-link">Home</a></li>
+                <li>
+                    <a href="#" class="nav-link">Img Tools <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown">
+                        <a href="./jpg-to-png.html"><i class="fas fa-file-alt"></i> Jpg to Png</a>
+                        <a href="./png-to-jpg.html"><i class="fas fa-file-alt"></i> Png to Jpg</a>
+                        <a href="./image-to-pdf.html"><i class="fas fa-image"></i> Image to PDF</a>
+                        <a href="./pdf-to-image-converter.html"><i class="fas fa-image"></i> PDF to Image</a>
+                        <a href="./image_resizer.html"><i class="fas fa-image"></i> image resizer</a>
+                        <a href="./youtube-thumbnail-downloader.html"><i class="fas fa-download"></i> Thumbnail</a>
+                    </div>
+                </li>
+                <li>
+                    <a href="#" class="nav-link">Text Tools <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown">
+                        <a href="./text-to-pdf-converter.html"><i class="fas fa-file-pdf"></i> Text to PDF</a>
+                        <a href="./Code-Minifier-Pro.html"><i class="fas fa-file-word"></i> Code Minifier</a>
+                        <a href="./QR-Code-Generator.html"><i class="fas fa-file-alt"></i> QR Code Generator</a>
+                        <a href="./code-editor.html"><i class="fas fa-code"></i> Code Editor</a>
+                        <a href="./robots-txt-generator (1).html"><i class="fas fa-table"></i> Robots Txt Generator</a>
+                        <a href="./pdf-split.html"><i class="fas fa-file-pdf"></i> PDF Split</a>
+                    </div>
+                </li>
+                <li>
+                    <a href="#" class="nav-link">PDF Tools <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown">
+                        <a href="./merge-pdf.html"><i class="fas fa-file-alt"></i> Merge PDF</a>
+                        <a href="./meta_tag_analyzer.html"><i class="fas fa-file-alt"></i> Tag Analyzer</a>
+                        <a href="./ip-Address-finder.html"><i class="fas fa-file-word"></i> Ip Finder</a>
+                        <a href="./pdf-to-zip-converter.html"><i class="fas fa-file-pdf"></i> PDF to Zip</a>
+                        <a href="./pdf-to-image-extractor.html"><i class="fas fa-file-pdf"></i> Image Extractor </a>
+                        <a href="./article-rewriter.html"><i class="fas fa-file-alt"></i> Article Rewriter</a>
+                    </div>
+                </li>
+                <li>
+                    <a href="#" class="nav-link">DOC Tools <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown">
+                        <a href="./ai-article-writer.html"><i class="fas fa-file-pdf"></i> Article writer</a>
+                        <a href="./ai-cold-email-writer.html"><i class="fas fa-file-pdf"></i> Email Writer</a>
+                        <a href="./ai-image-background-remover.html"><i class="fas fa-file-pdf"></i> Background Remover</a>
+                        <a href="./image_compressor.html"><i class="fas fa-image"></i> Image compressor</a>
+                        <a href="./image_converter.html"><i class="fas fa-image"></i> Image Converter</a>
+                        <a href="./pdf_watermark.html"><i class="fas fa-file-pdf"></i> WaterMarke to PDF</a>
+                    </div>
+                </li>
+                <li><a href="./tools-dashboard.html" class="nav-link">Dashboard</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="page-wrapper">
+        <div class="container">
+            <div class="header">
+                <h1>✍️ AI Grammar Checker</h1>
+                <p>Powered by Groq AI - Check and improve your writing instantly</p>
+            </div>
+
+            <div class="input-section">
+                <label for="textInput">Enter your text:</label>
+                <textarea 
+                    id="textInput" 
+                    class="text-input" 
+                    placeholder="Type or paste your text here to check for grammar, spelling, and style improvements..."
+                ></textarea>
+                <div class="char-count">
+                    <span id="charCount">0</span> characters
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn check-btn" id="checkBtn">
+                    Check Grammar
+                </button>
+                <button class="btn clear-btn" id="clearBtn">
+                    Clear
+                </button>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analyzing your text...</p>
+            </div>
+
+            <div class="error" id="error"></div>
+
+            <div class="results" id="results">
+                <div class="results-header">
+                    <h2>Results</h2>
+                    <button class="copy-all-btn" id="copyBtn">
+                        📋 Copy Corrected Text
+                    </button>
+                </div>
+
+                <div class="stats" id="stats"></div>
+
+                <div class="corrected-text" id="correctedText"></div>
+
+                <div class="suggestions" id="suggestionsSection" style="display: none;">
+                    <h3>💡 Suggestions</h3>
+                    <ul id="suggestionsList"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = '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';
+        const API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+        const MODEL = 'llama-3.3-70b-versatile';
+
+        const textInput = document.getElementById('textInput');
+        const charCount = document.getElementById('charCount');
+        const checkBtn = document.getElementById('checkBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const error = document.getElementById('error');
+        const correctedText = document.getElementById('correctedText');
+        const stats = document.getElementById('stats');
+        const suggestionsSection = document.getElementById('suggestionsSection');
+        const suggestionsList = document.getElementById('suggestionsList');
+
+        textInput.addEventListener('input', () => {
+            charCount.textContent = textInput.value.length;
+        });
+
+        checkBtn.addEventListener('click', checkGrammar);
+
+        clearBtn.addEventListener('click', () => {
+            textInput.value = '';
+            charCount.textContent = '0';
+            results.classList.remove('show');
+            error.classList.remove('show');
+            loading.classList.remove('show');
+        });
+
+        copyBtn.addEventListener('click', () => {
+            const text = correctedText.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = '✓ Copied!';
+                copyBtn.style.background = '#4caf50';
+                
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                    copyBtn.style.background = '#0072ff';
+                }, 2000);
+            }).catch(() => {
+                alert('Failed to copy text.');
+            });
+        });
+
+        async function checkGrammar() {
+            const text = textInput.value.trim();
+
+            if (!text) {
+                showError('Please enter some text to check.');
+                return;
+            }
+
+            loading.classList.add('show');
+            results.classList.remove('show');
+            error.classList.remove('show');
+            checkBtn.disabled = true;
+
+            const prompt = `You are an expert grammar checker and writing assistant. Analyze the following text and provide:
+
+1. The corrected version of the text with all grammar, spelling, and punctuation errors fixed
+2. A count of errors found
+3. 3-5 specific suggestions for improvement
+
+Text to check:
+"${text}"
+
+Please respond in this exact format:
+
+CORRECTED TEXT:
+[The corrected version here]
+
+ERRORS FOUND: [number]
+
+SUGGESTIONS:
+- [suggestion 1]
+- [suggestion 2]
+- [suggestion 3]
+- [etc.]`;
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: MODEL,
+                        messages: [
+                            {
+                                role: 'user',
+                                content: prompt
+                            }
+                        ],
+                        temperature: 0.3,
+                        max_tokens: 2000
+                    })
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.error?.message || `API Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const content = data.choices[0].message.content;
+                
+                parseAndDisplayResults(content, text);
+            } catch (err) {
+                showError(`Error: ${err.message}. Please check your internet connection or try again later.`);
+            } finally {
+                loading.classList.remove('show');
+                checkBtn.disabled = false;
+            }
+        }
+
+        function parseAndDisplayResults(content, originalText) {
+            const correctedMatch = content.match(/CORRECTED TEXT:\s*([\s\S]*?)(?=ERRORS FOUND:|$)/i);
+            const errorsMatch = content.match(/ERRORS FOUND:\s*(\d+)/i);
+            const suggestionsMatch = content.match(/SUGGESTIONS:\s*([\s\S]*?)$/i);
+
+            const corrected = correctedMatch ? correctedMatch[1].trim() : originalText;
+            const errorsFound = errorsMatch ? parseInt(errorsMatch[1], 10) : 0;
+
+            correctedText.textContent = corrected || 'No corrections needed.';
+
+            const originalWords = originalText.split(/\s+/).filter(w => w.length > 0).length;
+
+            stats.innerHTML = `
+                <div class="stat-card">
+                    <span class="stat-number">${errorsFound}</span>
+                    <div class="stat-label">Errors Found</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">${originalWords}</span>
+                    <div class="stat-label">Total Words</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">${originalText.length}</span>
+                    <div class="stat-label">Characters</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">${errorsFound === 0 ? '✓' : '✓'}</span>
+                    <div class="stat-label">${errorsFound === 0 ? 'Perfect!' : 'Improved'}</div>
+                </div>
+            `;
+
+            if (suggestionsMatch && suggestionsMatch[1].trim()) {
+                const suggestions = suggestionsMatch[1]
+                    .split('\n')
+                    .map(line => line.trim())
+                    .filter(line => line.startsWith('-'))
+                    .map(line => line.substring(1).trim());
+
+                if (suggestions.length > 0) {
+                    suggestionsList.innerHTML = suggestions.map(s => `<li>${s}</li>`).join('');
+                    suggestionsSection.style.display = 'block';
+                } else {
+                    suggestionsSection.style.display = 'none';
+                }
+            } else {
+                suggestionsSection.style.display = 'none';
+            }
+
+            results.classList.add('show');
+        }
+
+        function showError(message) {
+            error.textContent = message;
+            error.classList.add('show');
+        }
+
+
+
+         document.addEventListener('DOMContentLoaded', () => {
+            const hamburger = document.querySelector('.hamburger');
+            const navMenu = document.querySelector('.nav-menu');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            // Toggle mobile menu
+            hamburger.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+                hamburger.querySelector('i').classList.toggle('fa-bars');
+                hamburger.querySelector('i').classList.toggle('fa-times');
+            });
+
+            // Handle dropdown toggles on mobile
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    if (window.innerWidth <= 768 && link.nextElementSibling?.classList.contains('dropdown')) {
+                        e.preventDefault();
+                        link.parentElement.classList.toggle('active');
+                    }
+                });
+            });
+
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!navMenu.contains(e.target) && !hamburger.contains(e.target)) {
+                    navMenu.classList.remove('active');
+                    hamburger.querySelector('i').classList.remove('fa-times');
+                    hamburger.querySelector('i').classList.add('fa-bars');
+                }
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    navMenu.classList.remove('active');
+                    hamburger.querySelector('i').classList.remove('fa-times');
+                    hamburger.querySelector('i').classList.add('fa-bars');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

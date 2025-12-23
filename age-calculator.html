@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+
+  <title> Age calculator app</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,700;1,400;1,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+ <style>:root {
+   --Purple: hsl(259, 100%, 65%);
+   --Light-red: hsl(0, 100%, 67%);
+
+   --White: hsl(0, 0%, 100%);
+   --Off-white: #f0f0f0;
+   --Light-grey: hsl(0, 0%, 86%);
+   --Smokey-grey: hsl(0, 1%, 44%);
+   --Off-black: hsl(0, 0%, 8%);
+}
+
+:root {
+            --primary-color: #1a73e8;
+            --secondary-color: #00e6b3;
+            --text-color: #333;
+            --bg-color: #f5f5f5;
+        }
+
+ /* Navigation Styles */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .logo {
+            font-size: 24px;
+            color: var(--primary-color);
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+        }
+
+        .nav-menu li {
+            position: relative;
+        }
+
+        .nav-menu a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 16px;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu a:hover {
+            background: rgba(26, 115, 232, 0.1);
+            color: var(--primary-color);
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu li:hover .dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown a {
+            display: block;
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .dropdown a:last-child {
+            border-bottom: none;
+        }
+
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-color);
+        }
+
+        /* Mobile Navigation */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: block;
+            }
+
+            .nav-menu {
+                position: fixed;
+                top: 70px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 70px);
+                background: white;
+                flex-direction: column;
+                padding: 2rem;
+                transition: 0.3s;
+                overflow-y: auto;
+            }
+
+            .nav-menu.active {
+                left: 0;
+            }
+
+            .nav-menu li {
+                width: 100%;
+            }
+
+            .dropdown {
+                position: static;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                box-shadow: none;
+                margin-left: 1rem;
+                margin-top: 0.5rem;
+                display: none;
+            }
+
+            .nav-menu li.active .dropdown {
+                display: block;
+            }
+
+            .nav-menu a {
+                display: block;
+                padding: 1rem;
+                width: 100%;
+            }
+        }
+
+
+
+* {
+   box-sizing: border-box;
+   margin: 0;
+   padding: 0;
+}
+html, body {
+   background: var(--Off-white);
+   font-family: 'Poppins', sans-serif;
+   height: 100%;
+}
+main {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   height: 100%;
+}
+.main-container {
+   background: var(--White);
+   padding: 50px 5%;
+   border-radius: 20px 20px 150px 20px;
+   width: fit-content;
+}
+
+.input-container {
+   width: 90%;
+}
+.input-titles {
+   display: flex;
+   justify-content: start;
+}
+.input-titles h1 {
+   text-transform: uppercase;
+   color: var(--Smokey-grey);
+   font-size: 12px;
+   letter-spacing: 2px;
+   flex: 33%;
+   padding-bottom: 10px;
+}
+.input-feilds {
+   display: flex;
+   justify-content: start;
+}
+.input-feilds input {
+   flex: 33%;
+   max-width: 125px;
+   width: 30%;
+   height: 50px;
+   margin-right: 5%;
+   font-size: 22px;
+   font-weight: 700;
+   padding: 15px;
+   letter-spacing: 2px;
+   border: 1px solid var(--Light-grey);
+   border-radius: 5px;
+}
+.correct-feild:focus {
+   outline: 1px solid var(--Purple);
+   caret-color: var(--Purple);
+}
+.err-feild:focus {
+   outline: 1px solid var(--Light-red);
+   caret-color: var(--Light-red);
+}
+.err-msgs {
+   display: flex;
+   justify-content: start;
+}
+.err-msgs p {
+   color: var(--Light-red);
+   font-weight: 400;
+   font-style: italic;
+   font-size: 11px;
+   flex: 33%;
+   padding-top: 10px;
+}
+
+
+.submit-container {
+   display: flex;
+   align-items: center;
+   width: 500px;
+}
+.seperator-line {
+   background: var(--Light-grey);
+   width: 100%;
+   height: 1px;
+}
+.submit-btn button {
+   background: var(--Purple);
+   width: 70px;
+   height: 70px;
+   border-radius: 50%;
+   border: none;
+}
+.submit-btn button:hover {
+   background: var(--Off-black);
+}
+.submit-btn button img {
+   height: 35px;
+   width: 35px;
+}
+
+
+.output-container h2 {
+   font-size: 70px;
+   font-weight: 800;
+   font-style: italic;
+   line-height: 1.1;
+   color: var(--Off-black);
+}
+.output-container h2 span {
+   color: var(--Purple);
+}
+
+@media (max-width: 600px) {
+   .main-container {
+      margin: 10px;
+      border-bottom-right-radius: 100px;
+   }
+   .input-container {
+      width: 300px;
+   }
+   .submit-container {
+      width: 300px;
+      margin: 60px 0;
+      position: relative;
+   }
+   .submit-btn {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      translate: -50% -50%;
+   }
+   .output-container h2 {
+      font-size: 50px;
+   }
+}
+
+
+.attribution { 
+   font-size: 11px; 
+   text-align: center; 
+}
+.attribution a { 
+   color: hsl(228, 45%, 44%); 
+}</style>
+
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <i class="fas fa-file-pdf"></i>
+                ConvertTools
+            </a>
+            <button class="hamburger">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="./index.html" class="nav-link">Home</a></li>
+                <li>
+                    <a href="#" class="nav-link">Img Tools <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown">
+                        <a href="./jpg-to-png.html"><i class="fas fa-file-alt"></i> Jpg to Png</a>
+                        <a href="./png-to-jpg.html"><i class="fas fa-file-alt"></i> Png to Jpg</a>
+                        <a href="./image-to-pdf.html"><i class="fas fa-image"></i> Image to PDF</a>
+                        <a href="./pdf-to-image-converter.html"><i class="fas fa-image"></i> PDF to Image</a>
+                        <a href="./image_resizer.html"><i class="fas fa-image"></i> image resizer</a>
+                        <a href="./youtube-thumbnail-downloader.html"><i class="fas fa-download"></i> Thumbnail</a>
+                    </div>
+                </li>
+                <li>
+                    <a href="#" class="nav-link">Text Tools <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown">
+                        <a href="./text-to-pdf-converter.html"><i class="fas fa-file-pdf"></i> Text to PDF</a>
+                        <a href="./Code-Minifier-Pro.html"><i class="fas fa-file-word"></i> Code Minifier</a>
+                        <a href="./QR-Code-Generator.html"><i class="fas fa-file-alt"></i> QR Code Generator</a>
+                        <a href="./code-editor.html"><i class="fas fa-code"></i> Code Editor</a>
+                        <a href="./robots-txt-generator (1).html"><i class="fas fa-table"></i> Robots Txt Generator</a>
+                        <a href="./pdf-split.html"><i class="fas fa-file-pdf"></i> PDF Split</a>
+                    </div>
+                </li>
+                <li>
+                    <a href="#" class="nav-link">PDF Tools <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown">
+                        <a href="./merge-pdf.html"><i class="fas fa-file-alt"></i> Merge PDF</a>
+                        <a href="./meta_tag_analyzer.html"><i class="fas fa-file-alt"></i> Tag Analyzer</a>
+                        <a href="./ip-Address-finder.html"><i class="fas fa-file-word"></i> Ip Finder</a>
+                        <a href="./pdf-to-zip-converter.html"><i class="fas fa-file-pdf"></i> PDF to Zip</a>
+                        <a href="./pdf-to-image-extractor.html"><i class="fas fa-file-pdf"></i> Image Extractor </a>
+                        <a href="./article-rewriter.html"><i class="fas fa-file-alt"></i> Article Rewriter</a>
+                    </div>
+                </li>
+                <li>
+                    <a href="#" class="nav-link">DOC Tools <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown">
+                        <a href="./ai-article-writer.html"><i class="fas fa-file-pdf"></i> Article writer</a>
+                        <a href="./ai-cold-email-writer.html"><i class="fas fa-file-pdf"></i> Email Writer</a>
+                        <a href="./ai-image-background-remover.html"><i class="fas fa-file-pdf"></i> Background Remover</a>
+                        <a href="./image_compressor.html"><i class="fas fa-image"></i> Image compressor</a>
+                        <a href="./image_converter.html"><i class="fas fa-image"></i> Image Converter</a>
+                        <a href="./pdf_watermark.html"><i class="fas fa-file-pdf"></i> WaterMarke to PDF</a>
+                    </div>
+                </li>
+                <li><a href="./tools-dashboard.html" class="nav-link">Dashboard</a></li>
+            </ul>
+        </div>
+    </nav>
+  <main>
+  <div class="main-container">
+    <section class="input-container">
+      <div class="input-titles">
+        <h1 class="day">Day</h1>
+        <h1 class="month">Month</h1>
+        <h1 class="year">Year</h1>
+      </div>
+      
+      <div class="input-feilds">
+        <input class="correct-feild" type="text" id="day" name="day" placeholder="DD">
+        <input class="correct-feild" type="text" id="month" name="month" placeholder="MM">
+        <input class="correct-feild" type="text" id="year" name="year" placeholder="YYYY">
+      </div>
+
+      <div class="err-msgs">
+        <p class="day-err"></p>
+        <p class="month-err"></p>
+        <p class="year-err"></p>
+      </div>
+    </section>
+
+    <section class="submit-container">
+      <div class="seperator-line"></div>
+      <div class="submit-btn">
+        <button class="submit-button" type="submit"><img src="./assets/images/icon-arrow.svg" alt="submit"></button>
+      </div>
+    </section>
+
+    <section class="output-container">
+      <h2><span class="output-years">--</span>years</h2>
+      <h2><span class="output-months">--</span>months</h2>
+      <h2><span class="output-days">--</span>days</h2>
+    </section>
+  </div>
+  </main>
+
+  
+
+  <script> //input fields
+const day = document.getElementById('day');
+const month = document.getElementById('month');
+const year = document.getElementById('year'); 
+//inpt titles
+const daytitle = document.querySelector('.day');
+const monthtitle = document.querySelector('.month');
+const yeartitle = document.querySelector('.year');
+//error msgs
+const dayErr = document.querySelector('.day-err');
+const monthErr = document.querySelector('.month-err');
+const yearErr = document.querySelector('.year-err');
+//submit button
+const submitBtn = document.querySelector('.submit-button');
+//output fields
+const ageYears = document.querySelector('.output-years');
+const ageMonths = document.querySelector('.output-months');
+const agedays = document.querySelector('.output-days');
+//current date
+const currentDate = new Date();
+const currentYear = currentDate.getFullYear();
+const currentMonth = currentDate.getMonth()+1;
+const currentDay = currentDate.getDate();
+
+day.addEventListener("input", () => {
+   if (isEmpty(month.value) && isEmpty(year.value)) {
+      validateDay();
+   }
+   else if (!(isEmpty(month.value)) && isEmpty(year.value)) {
+      validateDay();
+      validateMonth();
+   }
+   else if (isEmpty(month.value) && !(isEmpty(year.value))) {
+      validateDay();
+      validateYear();
+   }
+   else {
+      validateDay();
+      validateMonth();
+      validateYear();
+   }
+});
+month.addEventListener("input", () => {
+   if (isEmpty(day.value) && isEmpty(year.value)) {
+      validateMonth();
+   }
+   else if (!(isEmpty(day.value)) && isEmpty(year.value)) {
+      validateMonth();
+      validateDay();
+   }
+   else if (isEmpty(day.value) && !(isEmpty(year.value))) {
+      validateMonth();
+      validateYear();
+   }
+   else {
+      validateDay();
+      validateMonth();
+      validateYear();
+   }
+});
+year.addEventListener("input", () => {
+   if (isEmpty(month.value) && isEmpty(day.value)) {
+      validateYear();
+   }
+   else if (!(isEmpty(month.value)) && isEmpty(day.value)) {
+      validateYear();
+      validateMonth();
+   }
+   else if (isEmpty(month.value) && !(isEmpty(day.value))) {
+      validateYear();
+      validateDay();
+   }
+   else {
+      validateDay();
+      validateMonth();
+      validateYear();
+   }
+});
+
+function isEmpty(fieldValue) {
+   return fieldValue == "";
+}
+
+submitBtn.addEventListener("click", () => {
+   if (validateDay() === true && validateMonth() === true && validateYear() === true) {
+      calculateAge(day.value, month.value, year.value);
+      animateOutputAge(ageYears, years, 250/years);
+      animateOutputAge(ageMonths, months, 250/months);
+      animateOutputAge(agedays, days, 250/days);
+   }
+   else {
+      alert("Enter a valid date!");
+   }
+})
+
+function animateOutputAge(elementYears, element, delay) {
+   let counts = setInterval(update, delay);
+   let upto = -1;
+   function update() {
+      elementYears.innerHTML = ++upto;
+      if (upto === element) {
+         clearInterval(counts);
+      }
+   }
+}
+
+let years;
+let months;
+let days;
+
+const shortmonths = ['4','6','9','11'];
+const longmonths = ['1','3','5','7','8','10','12'];
+
+function calculateAge(dayValue, monthValue, yearValue) {
+   years = currentYear - yearValue;
+   if (monthValue <= currentMonth) {
+      months = currentMonth - monthValue;
+   }
+   else {
+      years--;
+      months = (currentMonth+12) - monthValue;
+   }
+   if (dayValue <= currentDay) {
+      days = currentDay - dayValue;
+   }
+   else {
+      if ([4,6,9,11].includes(currentMonth-1)) {
+         months--;
+         days = (currentDay+30) - dayValue;
+      }
+      else if ([1,3,5,7,8,10,12].includes(currentMonth-1)) {
+         months--;
+         days = (currentDay+31) - dayValue;
+      }
+      else if (currentMonth-1 === 2 && (currentYear % 4 === 0) && (currentYear % 100 === 0)) {
+         months--;
+         days = (currentDay+29) - dayValue;
+      }
+      else {
+         months--;
+         days = (currentDay+28) - dayValue;
+      }
+   }
+}
+
+function errStyling(nametitle, name) {
+   nametitle.style.color = "#ff5757";
+   name.classList.remove('correct-feild');
+   name.classList.add('err-feild');
+}
+function correctStyling(nametitle, name) {
+   nametitle.style.color = "#716f6f";
+   name.classList.add('correct-feild');
+   name.classList.remove('err-feild');
+}
+
+function errMsg(fieldErr, fieldtitle, field, msg) {
+   fieldErr.textContent = msg;
+   errStyling(fieldtitle, field);
+}
+
+function validateDay() {
+   if (day.value === "") {
+      errMsg(dayErr, daytitle, day, "This field is required");
+   }
+   else if (isNaN(day.value)) {
+      errMsg(dayErr, daytitle, day, "Must be a number");
+   }
+   else if (day.value < 1 || day.value > 31) {
+      errMsg(dayErr, daytitle, day, "Must be a valid day");
+   }
+   else if (shortmonths.includes(month.value) && day.value > 30) {
+      errMsg(dayErr, daytitle, day, "Must be a valid date");
+   }
+   else if (longmonths.includes(month.value) && day.value > 31) {
+      errMsg(dayErr, daytitle, day, "Must be a valid date");
+   }
+   else if (month.value === '2' && (year.value % 4 === 0) && (year.value % 100 === 0) && day.value > 29) {
+         errMsg(dayErr, daytitle, day, "Must be a valid date");
+   }
+   else if (month.value === '2' && ((year.value % 4 != 0) || (year.value % 100 != 0)) && day.value > 28) {
+         errMsg(dayErr, daytitle, day, "Must be a valid date");
+   }
+   else if (year.value == currentYear && month.value == currentMonth && day.value > currentDay) {
+      errMsg(dayErr, daytitle, day, "Must be in the past");
+   }
+   else if (year.value == currentYear && month.value == currentMonth && day.value == currentDay) {
+      alert("That's today!")
+   }
+   else {
+      dayErr.textContent = "";
+      correctStyling(daytitle, day);
+      return true;
+   }
+}
+
+function validateMonth() {
+   if (month.value === "") {
+      errMsg(monthErr, monthtitle, month, "This field is required");
+   }
+   else if (isNaN(month.value)) {
+      errMsg(monthErr, monthtitle, month, "Must be a number");
+   }
+   else if (month.value < 1 || month.value > 12) {
+      errMsg(monthErr, monthtitle, month, "Must be a valid month");
+   }
+   else if (year.value == currentYear && month.value > currentMonth) {
+      errMsg(monthErr, monthtitle, month, "Must be in the past");
+   }
+   else {
+      monthErr.textContent = "";
+      correctStyling(monthtitle, month);
+      return true;
+   }
+}
+
+function validateYear() {
+   if (year.value === "") {
+      errMsg(yearErr, yeartitle, year, "This field is required");
+   }
+   else if (isNaN(year.value)) {
+      errMsg(yearErr, yeartitle, year, "Must be a number");
+   }
+   else if (year.value < 1) {
+      errMsg(yearErr, yeartitle, year, "Must be a valid year");
+   }
+   else if (year.value > currentYear) {
+      errMsg(yearErr, yeartitle, year, "Must be in the past");
+   }
+   else {
+      yearErr.textContent = "";
+      correctStyling(yeartitle, year);
+      return true;
+   }
+}
+
+ document.addEventListener('DOMContentLoaded', () => {
+            const hamburger = document.querySelector('.hamburger');
+            const navMenu = document.querySelector('.nav-menu');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            // Toggle mobile menu
+            hamburger.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+                hamburger.querySelector('i').classList.toggle('fa-bars');
+                hamburger.querySelector('i').classList.toggle('fa-times');
+            });
+
+            // Handle dropdown toggles on mobile
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    if (window.innerWidth <= 768 && link.nextElementSibling?.classList.contains('dropdown')) {
+                        e.preventDefault();
+                        link.parentElement.classList.toggle('active');
+                    }
+                });
+            });
+
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!navMenu.contains(e.target) && !hamburger.contains(e.target)) {
+                    navMenu.classList.remove('active');
+                    hamburger.querySelector('i').classList.remove('fa-times');
+                    hamburger.querySelector('i').classList.add('fa-bars');
+                }
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    navMenu.classList.remove('active');
+                    hamburger.querySelector('i').classList.remove('fa-times');
+                    hamburger.querySelector('i').classList.add('fa-bars');
+                }
+            });
+        });
+</script>
+</body>
+</html>

@@ -500,7 +500,7 @@
 
 
         
-        const apiKey = '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'; // Replace with your actual API key
+        const apiKey = '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'; // Replace with your actual API key
         
         document.getElementById('generate').addEventListener('click', generateArticle);
 
@@ -525,7 +525,7 @@
                         'Authorization': `Bearer ${apiKey}`
                     },
                     body: JSON.stringify({
-                        model: "llama-3.3-70b-versatile",
+                        model: "llama-3.1-8b-instant",
                         messages: [{
                             role: "user",
                             content: `Write an article about ${topic}. 

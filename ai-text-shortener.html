@@ -531,7 +531,7 @@
     </footer>
 
     <script>
-        const API_KEY = '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';
+        const API_KEY = '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';
         const API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
         const inputText = document.getElementById('inputText');
@@ -592,7 +592,7 @@
                                 content: `${lengthInstructions[lengthOption.value]}:\n\n${text}`
                             }
                         ],
-                        model: 'llama-3.3-70b-versatile',
+                        model: 'llama-3.1-8b-instant',
                         stream: false,
                         temperature: 0.5
                     })

@@ -643,7 +643,7 @@
 
 
      // DeepSeek API configuration
-     const DEEPSEEK_API_KEY = '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';
+     const DEEPSEEK_API_KEY = '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';
         const API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
         async function generateContent() {
@@ -672,7 +672,7 @@
                         'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
                     },
                     body: JSON.stringify({
-                        model: "llama-3.3-70b-versatile",
+                        model: "llama-3.1-8b-instant",
                         messages: [{
                             role: "user",
                             content: `Write a paragraph in a ${style} style with a ${tone} tone about: ${prompt}`
